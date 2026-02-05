@@ -5,3 +5,4 @@ __pycache__/
 db.*
 sent_emails/
 /whoosh/
+*migrations*

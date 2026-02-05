@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'apps.caixa',
     'apps.servicos',
     'apps.pesquisar',
+    'apps.agendamentos',
     'whoosh',
     'haystack'
 ]

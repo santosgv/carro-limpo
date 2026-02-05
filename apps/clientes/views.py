@@ -1,6 +1,6 @@
 from django.views.generic import ListView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
-
+from django.views.decorators.csrf import csrf_exempt
 from carro_limpo.views import UserRequiredCreateView, UpdateViewJson
 
 from .models import Cliente
@@ -12,7 +12,7 @@ class ClienteListarView(LoginRequiredMixin, ListView):
     context_object_name = "clientes"
 
     def get_queryset(self):
-        return Cliente.objects.filter(user=self.request.user)
+        return Cliente.objects.all()
 
 
 class ClienteCreateView(LoginRequiredMixin, UserRequiredCreateView):

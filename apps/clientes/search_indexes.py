@@ -7,7 +7,6 @@ from apps.clientes.models import Cliente
 
 class ClienteIndex(indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True, use_template=True)
-    user = indexes.CharField(model_attr="user")
     nome = indexes.CharField(model_attr="nome")
     telefone = indexes.CharField(model_attr="telefone")
     email = indexes.CharField(model_attr="email")
