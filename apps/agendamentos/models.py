@@ -1,8 +1,33 @@
 from datetime import timedelta
 from django.db import models
+from django.forms import ValidationError
 from apps.servicos.models import Servico
+from django.db.models import Q
 
-# Create your models here.
+
+class BusinessHours(models.Model):
+    weekday = models.IntegerField(
+        choices=[
+            (0, 'Segunda'),
+            (1, 'Terça'),
+            (2, 'Quarta'),
+            (3, 'Quinta'),
+            (4, 'Sexta'),
+            (5, 'Sábado'),
+            (6, 'Domingo'),
+        ]
+    )
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    is_closed = models.BooleanField(default=False)
+    slot_minutes = models.PositiveIntegerField(default=15)
+
+
+    def clean(self):
+        if not self.is_closed and self.end_time <= self.start_time:
+            raise ValidationError("Fim deve ser maior que Inicio")
+
+
 class Agendamento(models.Model):
 
     STATUS_CHOICES = (
@@ -15,9 +40,17 @@ class Agendamento(models.Model):
     servico = models.ForeignKey(Servico, on_delete=models.CASCADE)
     inicio_data_hora = models.DateTimeField()
     fim_data_hora = models.DateTimeField(blank=True)
+
+    
+    class Meta:
+        indexes = [
+            models.Index(fields=["inicio_data_hora"]),
+            models.Index(fields=["fim_data_hora"]),
+        ]
+
+
     
     def save(self, *args, **kwargs):
-        # Calcula o horário final automaticamente
         if not self.fim_data_hora:
             self.fim_data_hora = self.inicio_data_hora + timedelta(
                 minutes=self.servico.duracao

@@ -11,10 +11,16 @@ class AgendamentoForm(forms.ModelForm):
             'placa': forms.TextInput(attrs={
                 'class': 'form-control form-control-lg', 
                 'placeholder': 'ABC1234',
-                'style': 'text-transform: uppercase;' # Estético: placa sempre maiúscula
+                'style': 'text-transform: uppercase;'
             }),
             'servico': forms.Select(attrs={'class': 'form-select form-select-lg'}),
-            'data_hora': forms.TextInput(attrs={'class': 'form-control form-control-lg'}),
+                        'inicio_data_hora': forms.DateTimeInput(
+                attrs={
+                    'class': 'form-control form-control-lg',
+                    'type': 'datetime-local'
+                },
+                format='%Y-%m-%dT%H:%M'
+            ),
         }
 
     def clean_placa(self):

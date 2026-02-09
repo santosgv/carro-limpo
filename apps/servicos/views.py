@@ -12,7 +12,7 @@ class ServicoListarView(LoginRequiredMixin, ListView):
     context_object_name = "servicos"
 
     def get_queryset(self):
-        return Servico.objects.filter(user=self.request.user)
+        return Servico.objects.all().order_by("nome")
 
 
 class ServicoCreateView(LoginRequiredMixin, UserRequiredCreateView):
@@ -21,7 +21,7 @@ class ServicoCreateView(LoginRequiredMixin, UserRequiredCreateView):
 
 class ServicoUpdateView(LoginRequiredMixin, UpdateViewJson):
     model = Servico
-    fields = ("nome", "valor")
+    fields = ("nome", "valor","duracao")
 
 
 class ServicoDeleteView(LoginRequiredMixin, DeleteView):
