@@ -8,18 +8,51 @@ function getUrl() {
 }
 
 function getToken() {
-    let cookie = document.cookie;
-    let csrfToken = cookie.substring(cookie.indexOf('=') + 1);
-
-    return csrfToken;
+    let token = '';
+    
+    // 1. Primeiro tenta meta tag (mais confiável)
+    const metaToken = document.querySelector('meta[name="csrf-token"]');
+    if (metaToken && metaToken.content) {
+        token = metaToken.content;
+        console.log("Token obtido do meta tag");
+    }
+    
+    // 2. Se não encontrou no meta, busca no cookie
+    if (!token && document.cookie) {
+        const name = 'csrftoken';
+        const cookies = document.cookie.split(';');
+        
+        for (let cookie of cookies) {
+            cookie = cookie.trim();
+            if (cookie.startsWith(name + '=')) {
+                token = decodeURIComponent(cookie.substring(name.length + 1));
+                console.log("Token obtido do cookie");
+                break;
+            }
+        }
+    }
+    
+    // 3. Debug
+    if (!token) {
+        console.error("CSRF Token NÃO encontrado!");
+        console.log("Meta tag presente:", !!metaToken);
+        console.log("Cookies:", document.cookie);
+    } else {
+        console.log("Token length:", token.length);
+        console.log("Token (primeiros 10 chars):", token.substring(0, 10) + "...");
+    }
+    
+    return token;
 }
 
 // serializadores
 function servicoSerialize() {
     var servico = {
     "nome": $("td[data-label='NOME']").children().first().val(),
+    "duracao": $("td[data-label='DURACAO']").children().first().val(),
     "valor": $("td[data-label='VALOR']").children().first().val()
     };
+    console.log(servico);
     return servico;
 }
 

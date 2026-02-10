@@ -9,7 +9,8 @@ $(document).ready(function(){
 		$(this).attr("disabled", "disabled");
 		var index = $("table tbody  tr:last-child").index();
         var row = '<tr data-id=-1 id="edit" >' +
-            '<td data-label="NOME"><input type="text" scope="col" class="form-control-crud" name="servico" id="servico" maxlength="20" >Serviço</td>' +
+            '<td data-label="NOME"><input type="text" scope="col" class="form-control-crud" name="servico" id="servico" maxlength="20" >Nome</td>' +
+			'<td data-label="DURACAO"><input type="text" scope="col" class="form-control-crud" name="duracao" id="duracao" maxlength="20" >Duraçao</td>' +
 			'<td data-label="VALOR"><input type="number" lang="pt" step="0.01" scope="col" class="form-control-crud"  name="valor" id="valor" maxlength="14">Valor</td>' +
 			'<td data-label="AÇOES">' + actions + '</td>' +
             '</tr>';
@@ -19,7 +20,7 @@ $(document).ready(function(){
 			// Botao Adicionar
 			$(document).on("click", ".add", function(){
 				var empty = false;
-				var input = $(this).parents("tr").find('input[type="text"], [type="number"], [id="servico"], [id="valor"]');
+				var input = $(this).parents("tr").find('input[type="text"], [type="number"], [id="servico"],[id="duracao"], [id="valor"]');
 						input.each(function(){
 					if(!$(this).val()){
 						$(this).addClass("error");

@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.dateparse import parse_date
 from .forms import AgendamentoForm
 from apps.servicos.models import Servico
+from apps.clientes.models import Cliente
 from .models import Agendamento
 from .services import is_slot_available,get_business_hours_for_date
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -20,6 +21,17 @@ def agendar_view(request):
         if form.is_valid():
             agendamento = form.save(commit=False)
             agendamento = agendamento
+
+            placa = form.cleaned_data['placa'].upper()
+
+            cliente_cadastrado = Cliente.objects.filter(placa__iexact=placa).first()
+
+            if cliente_cadastrado:
+                agendamento.cliente = cliente_cadastrado
+                desconto = agendamento.servico.valor - 10
+                tem_beneficio = True
+
+            print(desconto,tem_beneficio)
 
             # ✅ calcula fim_data_hora antes de validar (sua modelagem usa isso)
             # (se seu model já calcula no save, aqui a gente calcula para validar conflito/expediente)
@@ -42,7 +54,9 @@ def agendar_view(request):
                 try:
                     agendamento.full_clean()
                     agendamento.save()
-                    return render(request, 'sucesso.html', {'agendamento': agendamento})
+                    return render(request, 'sucesso.html', {'agendamento': agendamento,
+                                                            'beneficio': tem_beneficio,
+                                                            'desconto':desconto})
                 except ValidationError as e:
                     # joga os erros no form
                     if hasattr(e, "message_dict"):

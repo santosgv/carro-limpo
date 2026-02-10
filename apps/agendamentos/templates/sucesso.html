@@ -96,6 +96,19 @@
                 </div>
                 {% endif %}
               </div>
+              <br>
+              {% if beneficio %}
+                  <div class="card border-success mb-3">
+                      <div class="card-body text-success">
+                          <h5 class="card-title">Benefício Aplicado!</h5>
+                          <p class="card-text">Identificamos seu cadastro. Você ganhou 10% de desconto nesta Serviço!</p>
+                          <p><strong>Valor final: R$ {{ desconto }}</strong></p>
+                      </div>
+                  </div>
+              {% else %}
+                  <p>Valor do serviço: R$ {{ agendamento.servico.valor }}</p>
+                  <p class="small text-muted">Deseja desconto na próxima? <a href="#">Faça seu cadastro!</a></p>
+              {% endif %}
 
               <div class="alert alert-success mt-4 mb-0" role="alert">
                 <strong>Pronto!</strong> Se precisar reagendar ou cancelar, entre em contato com a empresa.

@@ -5,4 +5,4 @@ from .models import Servico
 class ServicoCreateForm(UserRequiredForm):
     class Meta:
         model = Servico
-        exclude = ('user',)
+        fields = "__all__"
