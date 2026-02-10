@@ -32,6 +32,7 @@
       display:inline-block; margin-right: 6px;
     }
   </style>
+  <meta name="csrf-token" content="{{ csrf_token }}">
 </head>
 
 {% endblock %}
@@ -53,12 +54,18 @@
           <div class="card-body p-4 p-md-5">
 
             <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+              <nav aria-label="breadcrumb">
+              <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'agendamentos:agendamento' %}">Agendar</a></li>
+              </ol>
+            </nav>
               <div>
-                <h1 class="h4 fw-bold mb-1">Agenda (Administrador)</h1>
+                <h1 class="h4 fw-bold mb-1">Agenda</h1>
                 <div class="text-muted">Visualize os agendamentos por dia e hora.</div>
               </div>
-
+              
               <div class="d-flex flex-wrap gap-2 align-items-center">
+                
                 <span class="text-muted small">
                   <span class="legend-dot" style="background:#0d6efd"></span>Agendado
                 </span>
@@ -80,110 +87,204 @@
     </div>
   </div>
 
-  <!-- Modal de detalhes -->
-  <div class="modal fade" id="eventoModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="eventoModalTitle">Detalhes</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+<!-- Modal de detalhes -->
+<div class="modal fade" id="eventoModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="eventoModalTitle">Detalhes</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Detalhes -->
+        <div class="mb-2"><span class="text-muted">Serviço:</span> <strong id="mServico"></strong></div>
+        <div class="mb-2"><span class="text-muted">Placa:</span> <strong id="mPlaca"></strong></div>
+        <div class="mb-2"><span class="text-muted">Início:</span> <strong id="mInicio"></strong></div>
+        <div class="mb-2"><span class="text-muted">Fim:</span> <strong id="mFim"></strong></div>
+
+        <div class="mb-2">
+          <span class="text-muted">Status atual:</span>
+          <span class="badge" id="mStatus"></span>
         </div>
-        <div class="modal-body">
-          <div class="mb-2"><span class="text-muted">Serviço:</span> <strong id="mServico"></strong></div>
-          <div class="mb-2"><span class="text-muted">Placa:</span> <strong id="mPlaca"></strong></div>
-          <div class="mb-2"><span class="text-muted">Início:</span> <strong id="mInicio"></strong></div>
-          <div class="mb-2"><span class="text-muted">Fim:</span> <strong id="mFim"></strong></div>
-          <div class="mb-2"><span class="text-muted">Status:</span> <span class="badge" id="mStatus"></span></div>
-          <div class="mb-2" id="mValorWrap" style="display:none;">
-            <span class="text-muted">Valor:</span> <strong id="mValor"></strong>
-          </div>
+
+        <!-- 🔽 NOVO: alterar status -->
+        <hr>
+        <div class="mb-2">
+          <label class="form-label" for="statusSelect">Alterar status</label>
+          <select id="statusSelect" class="form-select">
+            <!-- mantenha alinhado com Agendamento.STATUS_CHOICES -->
+            <option value="scheduled">Agendado</option>
+            <option value="completed">Concluído</option>
+            <option value="canceled">Cancelado</option>
+          </select>
+          <div class="form-text">Selecione o novo status e clique em "Salvar".</div>
         </div>
-        <div class="modal-footer">
-          <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Fechar</button>
-        </div>
+
+        <!-- guarda o id do agendamento -->
+        <input type="hidden" id="agendamentoId" value="">
+        <div id="statusMsg" class="mt-2"></div>
+      </div>
+
+      <div class="modal-footer">
+        <button id="btnSalvarStatus" class="btn btn-primary">Salvar</button>
+        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Fechar</button>
       </div>
     </div>
   </div>
+</div>
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- FullCalendar JS (Global build) -->
-  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+<!-- FullCalendar JS (Global build) -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const calendarEl = document.getElementById('calendar');
-      const modalEl = document.getElementById('eventoModal');
-      const modal = new bootstrap.Modal(modalEl);
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // ====== ELEMENTOS ======
+    const calendarEl = document.getElementById('calendar');
+    const modalEl = document.getElementById('eventoModal');
+    const modal = new bootstrap.Modal(modalEl);
 
-      function badgeByStatus(status) {
-        // ajuste conforme seus choices
-        if (status === 'scheduled') return ['Agendado', 'text-bg-primary'];
-        if (status === 'completed') return ['Concluído', 'text-bg-success'];
-        if (status === 'canceled') return ['Cancelado', 'text-bg-danger'];
-        return [status, 'text-bg-secondary'];
-      }
+    const mServico = document.getElementById('mServico');
+    const mPlaca   = document.getElementById('mPlaca');
+    const mInicio  = document.getElementById('mInicio');
+    const mFim     = document.getElementById('mFim');
+    const mStatus  = document.getElementById('mStatus');
 
-      const calendar = new FullCalendar.Calendar(calendarEl, {
-        locale: 'pt-br',
-        timeZone: 'local',
+    const statusSelect   = document.getElementById('statusSelect');
+    const agendamentoId  = document.getElementById('agendamentoId');
+    const statusMsg      = document.getElementById('statusMsg');
+    const btnSalvar      = document.getElementById('btnSalvarStatus');
 
-        initialView: 'timeGridWeek',  // estilo Google Calendar (semana com horas)
-        nowIndicator: true,
-        height: 'auto',
+    // ====== CSRF helpers ======
+    function getCsrfToken() {
+      // 1) tenta meta
+      const meta = document.querySelector('meta[name="csrf-token"]');
+      if (meta && meta.content) return meta.content;
+      // 2) fallback cookie
+      const name = 'csrftoken';
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+      return '';
+    }
+    const csrftoken = getCsrfToken();
 
-        headerToolbar: {
-          left: 'prev,next today',
-          center: 'title',
-          right: 'dayGridMonth,timeGridWeek,timeGridDay'
+    // ====== Utils ======
+    function badgeByStatus(status) {
+      if (status === 'scheduled') return ['Agendado', 'text-bg-primary'];
+      if (status === 'completed') return ['Concluído', 'text-bg-success'];
+      if (status === 'canceled')  return ['Cancelado', 'text-bg-danger'];
+      return [status, 'text-bg-secondary'];
+    }
+
+    // URL template gerada pelo Django; substituímos o "0" pelo ID real
+    const updateUrlTemplate = "{% url 'agendamentos:atualizar_status_agendamento' ag_id=0 %}";
+
+    async function salvarStatus(agendamentoId, novoStatus) {
+      const url = `/agendamento/atualiza/${agendamentoId}/status/`;
+
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrftoken,
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest', // útil p/ decisões server-side
         },
-
-        slotMinTime: '06:00:00',
-        slotMaxTime: '22:00:00',
-        slotDuration: '00:15:00',
-        expandRows: true,
-        firstDay: 1, // segunda
-
-        // ✅ Carrega eventos do endpoint Django
-        events: {
-          url: "{% url 'agendamentos:eventos_agendamentos' %}",
-          method: 'GET',
-          failure: function () {
-            alert('Falha ao carregar agendamentos.');
-          }
-        },
-
-        eventClick: function(info) {
-          const props = info.event.extendedProps || {};
-
-          document.getElementById('eventoModalTitle').textContent = info.event.title;
-          document.getElementById('mServico').textContent = props.servico || '';
-          document.getElementById('mPlaca').textContent = props.placa || '';
-          document.getElementById('mInicio').textContent = props.inicio || '';
-          document.getElementById('mFim').textContent = props.fim || '';
-
-          const [text, cls] = badgeByStatus(props.status);
-          const statusEl = document.getElementById('mStatus');
-          statusEl.textContent = text;
-          statusEl.className = 'badge ' + cls;
-
-          const valorWrap = document.getElementById('mValorWrap');
-          const valorEl = document.getElementById('mValor');
-          if (props.valor) {
-            valorEl.textContent = `R$ ${props.valor}`;
-            valorWrap.style.display = 'block';
-          } else {
-            valorWrap.style.display = 'none';
-          }
-
-          modal.show();
-        }
+        body: JSON.stringify({ status: novoStatus }),
+        credentials: 'same-origin',
       });
 
-      calendar.render();
+      // Diagnóstico padrão: muitos casos aqui são 302->HTML (login) ou 403->HTML
+      const ct = resp.headers.get('content-type') || '';
+      if (!ct.includes('application/json')) {
+        const text = await resp.text();
+        throw new Error(`Resposta não-JSON (status ${resp.status}). Provável login/CSRF/URL. Veja console.`);
+      }
+
+      const data = await resp.json();
+      if (!resp.ok || !data.ok) {
+        throw new Error((data && data.error) ? data.error : `Erro HTTP ${resp.status}`);
+      }
+      return data;
+    }
+
+    // ====== CALENDÁRIO ======
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+      locale: 'pt-br',
+      timeZone: 'local',
+      initialView: 'timeGridWeek',
+      nowIndicator: true,
+      height: 'auto',
+      headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'dayGridMonth,timeGridWeek,timeGridDay'
+      },
+      slotMinTime: '06:00:00',
+      slotMaxTime: '22:00:00',
+      slotDuration: '00:15:00',
+      expandRows: true,
+      firstDay: 1,
+
+      events: {
+        url: "{% url 'agendamentos:eventos_agendamentos' %}",
+        method: 'GET',
+        failure: function () {
+          alert('Falha ao carregar agendamentos.');
+        }
+      },
+
+      eventClick: function(info) {
+        const props = info.event.extendedProps || {};
+
+        document.getElementById('eventoModalTitle').textContent = info.event.title;
+        mServico.textContent = props.servico || '';
+        mPlaca.textContent   = props.placa || '';
+        mInicio.textContent  = props.inicio || '';
+        mFim.textContent     = props.fim || '';
+
+        const [text, cls] = badgeByStatus(props.status);
+        mStatus.textContent = text;
+        mStatus.className   = 'badge ' + cls;
+
+        statusSelect.value = props.status || 'scheduled';
+        agendamentoId.value = info.event.id;
+
+        statusMsg.innerHTML = '';
+        modal.show();
+      }
     });
-  </script>
+
+    calendar.render();
+
+    // ====== ACTION: SALVAR STATUS ======
+    btnSalvar.addEventListener('click', async function () {
+      const id = agendamentoId.value;
+      const novoStatus = statusSelect.value;
+
+      if (!id || !novoStatus) return;
+
+      statusMsg.innerHTML = '<div class="text-muted small">Salvando...</div>';
+      btnSalvar.disabled = true;
+
+      try {
+        await salvarStatus(id, novoStatus);
+        await calendar.refetchEvents();
+        statusMsg.innerHTML = '<div class="text-success small">Status atualizado!</div>';
+        setTimeout(() => { modal.hide(); }, 400);
+      } catch (e) {
+        console.error(e);
+        statusMsg.innerHTML = `<div class="text-danger small">${e.message || 'Falha ao salvar.'}</div>`;
+      } finally {
+        btnSalvar.disabled = false;
+      }
+    });
+  });
+</script>
 </body>
 {% endblock %}
 </html>

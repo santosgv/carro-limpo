@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.utils import timezone
 from datetime import datetime, timedelta
 from django.core.exceptions import ValidationError
-from django.http import JsonResponse
+from django.http import HttpResponseBadRequest, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.utils.dateparse import parse_date
 from .forms import AgendamentoForm
@@ -11,6 +11,7 @@ from .models import Agendamento
 from .services import is_slot_available,get_business_hours_for_date
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.utils.dateparse import parse_datetime
+from django.views.decorators.http import require_POST
 
 def agendar_view(request):
     if request.method == 'POST':
@@ -167,3 +168,31 @@ def agendamentos_eventos_json(request):
         })
 
     return JsonResponse(events, safe=False)
+
+
+
+@require_POST
+def atualizar_status_agendamento(request, ag_id):
+    # Evita redirect HTML: verifique auth e retorne JSON
+    if not request.user.is_authenticated:
+        return JsonResponse({"ok": False, "error": "Não autenticado."}, status=401)
+
+    ag = get_object_or_404(Agendamento, pk=ag_id)
+
+    status = request.POST.get("status")
+    if status is None and request.content_type == "application/json":
+        import json
+        try:
+            payload = json.loads(request.body or "{}")
+            status = payload.get("status")
+        except Exception:
+            return HttpResponseBadRequest("JSON inválido")
+
+    allowed = dict(Agendamento.STATUS_CHOICES).keys()
+    if status not in allowed:
+        return JsonResponse({"ok": False, "error": "Status inválido."}, status=400)
+
+    ag.status = status
+    ag.save(update_fields=["status"])
+
+    return JsonResponse({"ok": True})
