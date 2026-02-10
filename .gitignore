@@ -6,3 +6,4 @@ db.*
 sent_emails/
 /whoosh/
 *migrations*
+pfp/

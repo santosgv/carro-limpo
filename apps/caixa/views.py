@@ -26,16 +26,15 @@ class CaixaView(LoginRequiredMixin, TemplateView):
 class CaixaAbrirView(LoginRequiredMixin, FormView):
     form_class = TransacaoForm
     template_name = "blank.html"
-
+    
     def form_valid(self, form):
-        caixa = Caixa(user=self.request.user)
-        caixa.save()
-        form.save(caixa=caixa)
-
-        return HttpResponseRedirect(reverse("caixa"), {"form": form})
-
-    def form_invalid(self, form):
-        print(form.errors)
+        # Cria caixa
+        caixa = Caixa.objects.create(user=self.request.user)
+        
+        # Passa caixa como argumento para save()
+        transacao = form.save(caixa=caixa)
+        
+        return HttpResponseRedirect(reverse("caixa"))
 
 
 class CaixaGetDataView(LoginRequiredMixin, View):

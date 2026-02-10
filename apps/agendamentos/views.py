@@ -26,12 +26,6 @@ def agendar_view(request):
 
             cliente_cadastrado = Cliente.objects.filter(placa__iexact=placa).first()
 
-            if cliente_cadastrado:
-                agendamento.cliente = cliente_cadastrado
-                desconto = agendamento.servico.valor - 10
-                tem_beneficio = True
-
-            print(desconto,tem_beneficio)
 
             # ✅ calcula fim_data_hora antes de validar (sua modelagem usa isso)
             # (se seu model já calcula no save, aqui a gente calcula para validar conflito/expediente)
@@ -54,9 +48,17 @@ def agendar_view(request):
                 try:
                     agendamento.full_clean()
                     agendamento.save()
+                    tem_beneficio = False
+                    desconto = 0
+                    
+                    if cliente_cadastrado != None:
+                        agendamento.cliente = cliente_cadastrado
+                        desconto = agendamento.servico.valor - 10
+                        tem_beneficio = True
                     return render(request, 'sucesso.html', {'agendamento': agendamento,
                                                             'beneficio': tem_beneficio,
-                                                            'desconto':desconto})
+                                                            'desconto':desconto
+                                                           })
                 except ValidationError as e:
                     # joga os erros no form
                     if hasattr(e, "message_dict"):
@@ -107,11 +109,9 @@ def disponibilidade_view(request):
 
     return JsonResponse({"slots": slots})
 
-
 def staff_required(user):
     # se você quiser apenas staff/admin
     return user.is_authenticated and user.is_staff
-
 
 @login_required
 @user_passes_test(staff_required)
@@ -182,8 +182,6 @@ def agendamentos_eventos_json(request):
         })
 
     return JsonResponse(events, safe=False)
-
-
 
 @require_POST
 def atualizar_status_agendamento(request, ag_id):

@@ -45,8 +45,10 @@ $(document).ready(function(){
 				        $(this).parents("tr").attr("id", "edit");
 						var textField = $(this).parents("tr").children('td').eq(0);
 						var numberField = $(this).parents("tr").children('td').eq(1)
+						var timeField = $(this).parents("tr").children('td').eq(2)
 						textField.html('<input type="text" class="form-control-crud" value="' + textField.text() + '">');
-						numberField.html('<input type="number" step="0.01" lang="pt" class="form-control-crud" value="' + numberField.text().replace(",", ".") + '">');
+						numberField.html('<input type="number" lang="pt" class="form-control-crud" value="' + numberField.text().replace(",", ".") + '">');
+						timeField.html('<input type="number" step="0.01" lang="pt" class="form-control-crud" maxlength="14" value="' + timeField.text() + '">');
 					//	$(this).parents("tr").find("td:not(:last-child)").each(function(){
 				//	$(this).html('<input type="text" class="form-control-crud" value="' + $(this).text() + '">');	
 				//});	

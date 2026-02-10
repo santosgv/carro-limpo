@@ -97,7 +97,7 @@
                 {% endif %}
               </div>
               <br>
-              {% if beneficio %}
+              {% if beneficio == True %}
                   <div class="card border-success mb-3">
                       <div class="card-body text-success">
                           <h5 class="card-title">Benefício Aplicado!</h5>
@@ -106,7 +106,6 @@
                       </div>
                   </div>
               {% else %}
-                  <p>Valor do serviço: R$ {{ agendamento.servico.valor }}</p>
                   <p class="small text-muted">Deseja desconto na próxima? <a href="#">Faça seu cadastro!</a></p>
               {% endif %}
 
