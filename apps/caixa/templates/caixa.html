@@ -29,6 +29,17 @@
     {% include "includes/tos.html" %}
 
     <!-- Modal Abrir o Caixa -->
+
+      <div class="text-center">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert {{message.tags}}">
+                    {{message}}
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
     <div class="modal fade " id="Abrir-Caixa-Modal" tabindex="-1" aria-labelledby="Abrir-caixa-ModalLabel" aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content">

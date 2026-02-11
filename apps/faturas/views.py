@@ -18,12 +18,12 @@ class FaturaListarView(LoginRequiredMixin, ListView):
     context_object_name = "faturas"
 
     def get_queryset(self):
-        return Fatura.objects.filter(user=self.request.user)
+        return Fatura.objects.all()
 
     def get_context_data(self, **kwargs):
         context = super(FaturaListarView, self).get_context_data(**kwargs)
-        context['servicos'] = Servico.objects.filter(user=self.request.user)
-        context['clientes'] = Cliente.objects.filter(user=self.request.user)
+        context['servicos'] = Servico.objects.all()
+        context['clientes'] = Cliente.objects.all()
         return context
 
 
