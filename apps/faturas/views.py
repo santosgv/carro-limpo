@@ -32,7 +32,7 @@ class FaturaFormView(LoginRequiredMixin, FormView):
 
     def form_valid(self, form):
         form.save(self.request.user)
-        return HttpResponseRedirect(reverse("faturas"), {"form": form})
+        return HttpResponseRedirect(reverse("faturas"))
 
 
 class FaturaDeleteView(LoginRequiredMixin, DeleteView):
