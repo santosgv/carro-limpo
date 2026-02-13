@@ -15,21 +15,6 @@
   <script type="text/javascript" src="{% static "js/ajax.js" %}"></script>
   <script type="text/javascript" src="{% static "js/data_local.js" %}"></script>
 
-  <style>
-    @page {
-      size: A4 portrait; /* ou landscape se quiser deitado */
-      margin: 10mm;
-    }
-
-    @media print {
-      #area-impressao {
-        width: 190mm;
-        margin: 0 auto;
-      }
-    }
-
-
-  </style>
 {% endblock %}
 
 {% block body %}
@@ -45,100 +30,7 @@
     <!-- modal Termos -->
     {% include "includes/tos.html" %}
 
-    <!-- Modal Fatura -->
-    <div class=" modal fade" id="faturaModal" tabindex="-1" aria-labelledby="faturaModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="page">
-            <div class="modal-header">
-              <h2 class="modal-title" id="faturaModalLabel">
-                <span style="float:left;">Fatura: <span id="fatura_id"></span>
-              </h2>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" id="area-impressao">
-              <!-- fatura -->
-              <div class="row">
-                <div class="mb-2 col-sm-7">
-                  <h5>Dados do estabelecimento:</h5>
-                  <strong>Nome:</strong> <span id="loja_rs"></span>
-                  <br><strong> CNPJ:</strong> <span id="loja_cnpj"></span>
-                  <p><strong>Endereço:</strong> <span id="loja_endereco"></span></p>
-                </div>
-                <div class="mb-2 col-sm-5">
-                  <h5>Contato:</h5>
-                  <strong>Telefone:</strong> <span id="loja_tel"></span> 
-                  <br><strong>Email:</strong> <span id="loja_email"></span>
-                </div>
-              </div>
-              <hr>
-              <div class="row">
-                <div class="mb-2 col-sm-7">
-                  <h5>Dados do Cliente:</h5>
-                  <strong>Nome:</strong> <span id="cliente_nome"></span>
-                  <br><strong> CPF/CNPJ:</strong> <span id="cliente_documento"></span>
-                  <br><strong> Placa:</strong> <span id="cliente_placa"></span>
-                  <br><strong> Marca:</strong> <span id="cliente_marca"></span>
-                  <br><strong> Modelo:</strong> <span id="cliente_modelo"></span>
 
-                </div>
-
-                <div class="mb-2 col-sm-5">
-                  <h5>Contato:</h5>
-                  <strong>Telefone:</strong> <span id="cliente_tel"></span>
-                  <br><strong>Email:</strong> <span id="cliente_email"></span>
-
-                </div>
-              </div>
-              <hr>
-              <div class="row">
-                <div class="mb-3 col-lg-6 col-md-8 col-sm-6">
-                  <h5>Descrição:</h5>
-                </div>
-              </div>
-
-              <div class="row">
-                <div class="col-sm-12 mb-3">
-                  <div class="table-responsive">
-                    <table id="crud tab_customers" class="crud exportar table table-bordered table-hover table-striped">
-                      <thead class="thead">
-                        <tr>
-                          <th scope="col">Serviço</th>
-                          <th scope="col">status</th>
-                          <th scope="col">Valor</th>
-                          <th scope="col">Vencimento</th>
-                        </tr>
-                      </thead>
-                      <tbody class="tbody">
-                        <tr>
-                          <td><span id="servico_nome"></span></td>
-                          <td id="status"><span class="badge badge-boxed badge-soft-warning" id="fatura_status"></span></td>
-                          <td id="valor">R$ <span id="servico_valor"></span></td>
-                          <td><span id="fatura_data"></span></td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-              <hr>
-              <div>
-                <p>
-                <h5>Forma de Pagamento:</h5>
-                <span>Dinheiro</span>
-                <span style="float:right;"><b style="font-size: 24px;">Total: R$ <span id="fatura_valor"></span></b></span>
-                </p>
-                <div class="row">
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button class="button-print-or-save-document btn btn-primary">Imprimir</button>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <!-- final fatura -->
 
@@ -241,7 +133,10 @@
                               {% for fatura in faturas %}
                               <tr data-id={{ fatura.id }}>
                                 <td id="td-header" data-label="FATURA">
-                                  <i type="button" class="fatura-icone desc_footer data-bs-toggle=" data-toggle="tooltip" title="Gerar Fatura" data-bs-toggle="modal" data-bs-target="#faturaModal" data-bs-whatever="@mdo" onclick=gerarFatura({{ fatura.id }})></i>
+                                  <a href="{% url 'gerar' fatura.id %}">
+                                    <i type="button" class="fatura-icone desc_footer data-bs-toggle="  title="Gerar Fatura" >
+                                  </i>
+                                  </a>
                                 </td>
                                 <td data-label="Nº"> {{ fatura.id }}</td>
                                 {% if fatura.pago %}
