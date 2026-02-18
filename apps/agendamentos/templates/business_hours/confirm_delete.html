@@ -1,0 +1,76 @@
+{% extends "base_head.html" %}
+{% load static %}
+{% block page_css %}
+
+<style>
+  .container {
+    padding-top: 80px;
+  }
+</style>
+
+{% endblock %}
+
+{% block title %}Excluir Horário{% endblock %}
+
+{% block body %}
+
+{% include "includes/header.html" %}
+{% include "includes/nav.html" %}
+ {% include "includes/tos.html" %}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Confirmar Exclusão
+                    </h4>
+                </div>
+                
+                <div class="card-body text-center">
+                    <i class="fas fa-clock fa-4x text-muted mb-3"></i>
+                    
+                    <h5 class="mb-3">Tem certeza que deseja excluir este horário?</h5>
+                    
+                    <div class="alert alert-warning">
+                        <p class="mb-1"><strong>Dia:</strong> 
+                            {% with weekday=object.get_weekday_display %}
+                                {{ weekday }}
+                            {% endwith %}
+                        </p>
+                        
+                        {% if object.is_closed %}
+                            <p class="mb-0"><span class="badge bg-danger">Fechado</span></p>
+                        {% else %}
+                            <p class="mb-1"><strong>Horário:</strong> 
+                                {{ object.start_time|time:"H:i" }} às {{ object.end_time|time:"H:i" }}
+                            </p>
+                            <p class="mb-0"><strong>Duração:</strong> {{ object.slot_minutes }} minutos</p>
+                        {% endif %}
+                    </div>
+                    
+                    <p class="text-muted small">
+                        Esta ação não pode ser desfeita.
+                    </p>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-center gap-3">
+                            <a href="{% url 'agendamentos:business_hours_list' %}" class="btn btn-secondary">
+                                <i class="fas fa-times me-1"></i>
+                                Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash me-1"></i>
+                                Confirmar Exclusão
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

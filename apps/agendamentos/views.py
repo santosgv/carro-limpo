@@ -1,4 +1,7 @@
 from django.shortcuts import render
+from django.urls import reverse_lazy
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils import timezone
 from datetime import datetime, timedelta
 from django.core.exceptions import ValidationError
@@ -8,11 +11,12 @@ from django.utils.dateparse import parse_date
 from .forms import AgendamentoForm
 from apps.servicos.models import Servico
 from apps.clientes.models import Cliente
-from .models import Agendamento
+from .models import Agendamento,BusinessHours
 from .services import is_slot_available,get_business_hours_for_date
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.utils.dateparse import parse_datetime
 from django.views.decorators.http import require_POST
+from django.contrib import messages
 
 def agendar_view(request):
     if request.method == 'POST':
@@ -121,7 +125,6 @@ def calendario_admin_view(request):
     """
     return render(request, "admin_calendario.html")
 
-
 @login_required
 @user_passes_test(staff_required)
 def agendamentos_eventos_json(request):
@@ -208,3 +211,76 @@ def atualizar_status_agendamento(request, ag_id):
     ag.save(update_fields=["status"])
 
     return JsonResponse({"ok": True})
+
+
+class BusinessHoursListView(LoginRequiredMixin, ListView):
+    """Lista todos os horários de funcionamento"""
+    model = BusinessHours
+    template_name = 'business_hours/list.html'
+    context_object_name = 'hours'
+    ordering = ['weekday', 'start_time']
+    
+    def get_queryset(self):
+        # Ordena por dia da semana (segunda a domingo)
+        return BusinessHours.objects.all().order_by('weekday', 'start_time')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Mapeamento de dias para exibição
+        context['weekdays'] = dict(BusinessHours._meta.get_field('weekday').choices)
+        return context
+
+
+class BusinessHoursCreateView(LoginRequiredMixin, CreateView):
+    """Cria um novo horário de funcionamento"""
+    model = BusinessHours
+    template_name = 'business_hours/form.html'
+    fields = ['weekday', 'start_time', 'end_time', 'is_closed', 'slot_minutes']
+    success_url = reverse_lazy('agendamentos:business_hours_list')
+    
+    def form_valid(self, form):
+        messages.success(self.request, 'Horário cadastrado com sucesso!')
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        messages.error(self.request, 'Erro ao cadastrar horário. Verifique os dados.')
+        return super().form_invalid(form)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Novo Horário'
+        context['button_text'] = 'Cadastrar'
+        return context
+
+
+class BusinessHoursUpdateView(LoginRequiredMixin, UpdateView):
+    """Edita um horário existente"""
+    model = BusinessHours
+    template_name = 'business_hours/form.html'
+    fields = ['weekday', 'start_time', 'end_time', 'is_closed', 'slot_minutes']
+    success_url = reverse_lazy('agendamentos:business_hours_list')
+    
+    def form_valid(self, form):
+        messages.success(self.request, 'Horário atualizado com sucesso!')
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        messages.error(self.request, 'Erro ao atualizar horário. Verifique os dados.')
+        return super().form_invalid(form)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Editar Horário'
+        context['button_text'] = 'Atualizar'
+        return context
+
+
+class BusinessHoursDeleteView(LoginRequiredMixin, DeleteView):
+    """Remove um horário"""
+    model = BusinessHours
+    template_name = 'business_hours/confirm_delete.html'
+    success_url = reverse_lazy('agendamentos:business_hours_list')
+    
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, 'Horário removido com sucesso!')
+        return super().delete(request, *args, **kwargs)

@@ -22,6 +22,9 @@ class BusinessHours(models.Model):
     is_closed = models.BooleanField(default=False)
     slot_minutes = models.PositiveIntegerField(default=15)
 
+    class Meta:
+        # SOLUÇÃO MAIS EXPLÍCITA: unique_together
+        unique_together = ['weekday']  # Garante que cada dia aparece apenas uma vez
 
     def clean(self):
         if not self.is_closed and self.end_time <= self.start_time:
