@@ -4,13 +4,15 @@ from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.views.generic import FormView, ListView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
-
+from .utils import Payload
 from carro_limpo.views import UpdateViewJson
 from apps.clientes.models import Cliente
 from apps.servicos.models import Servico
 from .models import Fatura
 from .forms import FaturaForm
-
+from io import BytesIO
+import base64
+import qrcode
 
 # Create your views here.
 class FaturaListarView(LoginRequiredMixin, ListView):
@@ -50,10 +52,31 @@ class FaturaUpdateView(LoginRequiredMixin, UpdateViewJson):
 def gerar(request, id):
     fatura = get_object_or_404(Fatura, pk=id)
 
+    txid = f"FAT{id}{request.user.id}"[-25:]
+
+    payload = Payload(
+                nome=str(request.user.loja.nome[:17]),
+                chavepix=str(request.user.loja.chave_pix),
+                valor=f'{fatura.servico.valor:.2f}',
+                cidade='Brasil',
+                txtId=txid
+            )
+    string_pix = payload.gerarPayload(gerar_qrcode=False)
+
+    qr = qrcode.QRCode(version=1, box_size=10, border=5)
+    qr.add_data(string_pix)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
+    
+    # Converte a imagem para base64
+    buffered = BytesIO()
+    img.save(buffered, format="PNG")
+    img_base64 = base64.b64encode(buffered.getvalue()).decode()
+
     if not fatura.pago:
         _status = "Pendente"
         fatura.pago = True
-        fatura.save()
+        #fatura.save()
     else:
         _status = "Pago"
 
@@ -75,7 +98,9 @@ def gerar(request, id):
         "fatura_valor": fatura.servico.valor,
         "fatura_data": fatura.data,
         "fatura_status": _status,
-        "fatura_id": fatura.id
+        "fatura_id": fatura.id,
+        "string_pix": string_pix,
+        "qr_code_base64": img_base64,
     }
 
     return render(request, "fatura_print.html", context)
