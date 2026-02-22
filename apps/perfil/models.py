@@ -24,6 +24,7 @@ class Loja(models.Model):
     cnpj = models.CharField(max_length=50, blank=True)
     telefone = models.CharField(max_length=15, blank=True)
     email = models.EmailField(max_length=100, blank=True)
+    chave_pix = models.CharField(max_length=100, blank=True)
 
     @receiver(post_save, sender=User)
     def create_user_profile(sender, instance, created, **kwargs):
