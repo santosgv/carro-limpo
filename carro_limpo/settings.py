@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     'apps.accounts',
     'apps.estatisticas',
     'apps.clientes',
@@ -45,6 +46,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -155,3 +157,20 @@ HAYSTACK_CONNECTIONS = {
 }
 HAYSTACK_DOCUMENT_FIELD = 'text'
 HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
+
+
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:8000',  # Porta padrão do Vite/React
+    'http://127.0.0.1:8000',
+    'http://85.209.93.169',
+    'http://85.209.93.169:8000',
+]
+
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_METHODS = ['GET', 'POST', 'DELETE', 'OPTIONS'] 
+
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Store sessions in database
+SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
+SESSION_COOKIE_HTTPONLY = False  # Allow frontend to read sessionid if needed
+SESSION_COOKIE_AGE = 1209600  # 2 weeks
