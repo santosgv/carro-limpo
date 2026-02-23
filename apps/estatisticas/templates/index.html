@@ -4,11 +4,10 @@
 {% block title %} | Estatísticas mensais {% endblock %}
 {% block page_css %}
   <!-- CSS Projeto -->
+  {% include 'includes/jsdefault.html' %}
   {% include "includes/cssdefault.html" %}
-    {% include 'includes/jsdefault.html' %}
 {% endblock%}
 {% block page_js %}
-  {% include 'includes/jsdefault.html' %}
   <!-- JavaScript do projeto clientes-->
   <script src="{% static "js/crud_cliente.js" %}"></script>
   <!-- Javascript do projeto Chart estatisticas -->
@@ -16,6 +15,7 @@
 {% endblock %}
 
 {% block body %}
+<body id="body-pd" class="body-pd2" >
 {% include 'includes/header.html' %}
 
 

@@ -11,6 +11,7 @@
 
 body {
   align-items: center;
+  padding-top: 50px;
   background: #f5f7fa;
   font-size: 0.875rem;
   font-family: lato, sans-serif; 

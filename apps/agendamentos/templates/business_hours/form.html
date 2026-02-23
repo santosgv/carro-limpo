@@ -1,6 +1,7 @@
 {% extends "base_head.html" %}
 {% load static %}
 {% block page_css %}
+{% include 'includes/jsdefault.html' %}
 <style>
   .container {
     padding-top: 80px;
@@ -11,6 +12,7 @@
 {% block title %}{{ title }} - Horários{% endblock %}
 
 {% block body %}
+<body id="body-pd" class="body-pd2">
 
 {% include "includes/header.html" %}
 {% include "includes/nav.html" %}
@@ -130,6 +132,7 @@
         </div>
     </div>
 </div>
+</body>
 {% endblock %}
 
 {% block extra_js %}
