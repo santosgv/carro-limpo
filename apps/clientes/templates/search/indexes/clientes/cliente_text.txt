@@ -6,3 +6,4 @@
 {{ object.marca }}
 {{ object.modelo }}
 {{ object.cor }}
+{{ object.desconto }}
