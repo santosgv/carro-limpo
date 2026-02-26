@@ -8,7 +8,7 @@ class ClienteCreateForm(UserRequiredForm):
     class Meta:
         model = Cliente
         fields = ["nome", "telefone", "email", "documento", "placa", "marca",
-                  "modelo", "cor",]
+                  "modelo", "cor","desconto",]
         exclude = ('user',)
 
 

@@ -11,6 +11,7 @@ class Cliente(models.Model):
     marca = models.CharField(max_length=100, default=None)
     modelo = models.CharField(max_length=100, default=None)
     cor = models.CharField(max_length=100, default=None)
+    desconto = models.IntegerField(default=0)
 
     def __str__(self):
         return "{nome} ({placa})".format(nome=self.nome, placa=self.placa)

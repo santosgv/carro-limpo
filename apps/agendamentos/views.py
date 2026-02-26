@@ -21,50 +21,64 @@ from django.contrib import messages
 def agendar_view(request):
     if request.method == 'POST':
         form = AgendamentoForm(request.POST)
-
+        
         if form.is_valid():
             agendamento = form.save(commit=False)
-            agendamento = agendamento
-
+            
+            # Pega a placa do formulário
             placa = form.cleaned_data['placa'].upper()
-
+            
+            # ✅ Busca cliente pela placa (APENAS UMA VEZ)
             cliente_cadastrado = Cliente.objects.filter(placa__iexact=placa).first()
-
-
-            # ✅ calcula fim_data_hora antes de validar (sua modelagem usa isso)
-            # (se seu model já calcula no save, aqui a gente calcula para validar conflito/expediente)
+            
+            # ✅ Inicializa variáveis de desconto com valores padrão
+            tem_beneficio = False
+            percentual_desconto = 0
+            valor_final = agendamento.servico.valor  # Valor padrão sem desconto
+            
+            # ✅ Se cliente encontrado, associa e verifica desconto
+            if cliente_cadastrado:
+                agendamento.cliente = cliente_cadastrado
+                
+                # Pega o percentual de desconto (0 se for None)
+                percentual_desconto = cliente_cadastrado.desconto or 0
+                
+                # Calcula valor com desconto se houver percentual > 0
+                if percentual_desconto > 0:
+                    valor_servico = agendamento.servico.valor
+                    valor_desconto = (valor_servico * percentual_desconto) / 100
+                    valor_final = valor_servico - valor_desconto
+                    tem_beneficio = True
+            
+            # ✅ Calcula fim_data_hora (sua modelagem usa isso)
             agendamento.fim_data_hora = agendamento.inicio_data_hora + timezone.timedelta(
                 minutes=agendamento.servico.duracao
             )
 
-            # ✅ valida disponibilidade (expediente + slot + conflito)
+            # ✅ Valida disponibilidade (expediente + slot + conflito)
             ok, msg = is_slot_available(
                 servico=agendamento.servico,
                 start_dt=agendamento.inicio_data_hora
             )
+            
             if not ok:
                 form.add_error('inicio_data_hora', msg)
             else:
-                # ✅ roda validações de domínio (clean/full_clean do model)
-                # Isso pega:
-                # - conflito (se você colocou no clean)
-                # - serviço do mesmo user, etc.
+                # ✅ Roda validações de domínio (clean/full_clean do model)
                 try:
                     agendamento.full_clean()
                     agendamento.save()
-                    tem_beneficio = False
-                    desconto = 0
                     
-                    if cliente_cadastrado != None:
-                        agendamento.cliente = cliente_cadastrado
-                        desconto = agendamento.servico.valor - 10
-                        tem_beneficio = True
-                    return render(request, 'sucesso.html', {'agendamento': agendamento,
-                                                            'beneficio': tem_beneficio,
-                                                            'desconto':desconto
-                                                           })
+                    # ✅ Sucesso! Renderiza com todas as variáveis
+                    return render(request, 'sucesso.html', {
+                        'agendamento': agendamento,
+                        'beneficio': tem_beneficio,
+                        'desconto': percentual_desconto,
+                        'valor_final': valor_final,
+                    })
+                    
                 except ValidationError as e:
-                    # joga os erros no form
+                    # ✅ Trata erros de validação do model
                     if hasattr(e, "message_dict"):
                         for field, errors in e.message_dict.items():
                             for err in errors:

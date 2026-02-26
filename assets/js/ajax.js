@@ -66,6 +66,7 @@ function clienteSerialize() {
 							"marca": $("td[data-label='MARCA']").children().first().val(),
 							"modelo": $("td[data-label='MODELO']").children().first().val(),
 							"cor": $("td[data-label='COR']").children().first().val(),
+                            "desconto": $("td[data-label='DESCONTO']").children().first().val()
 						};
     return cliente;
 }

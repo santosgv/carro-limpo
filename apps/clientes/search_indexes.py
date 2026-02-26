@@ -15,6 +15,7 @@ class ClienteIndex(indexes.SearchIndex, indexes.Indexable):
     marca = indexes.CharField(model_attr="marca")
     modelo = indexes.CharField(model_attr="modelo")
     cor = indexes.CharField(model_attr="cor")
+    desconto = indexes.IntegerField(model_attr="desconto")
     model_verbose = indexes.CharField(model_attr="_meta__verbose_name_plural",
                                       faceted=True)
 

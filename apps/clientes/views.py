@@ -22,7 +22,7 @@ class ClienteCreateView(LoginRequiredMixin, UserRequiredCreateView):
 class ClienteUpdateView(LoginRequiredMixin, UpdateViewJson):
     model = Cliente
     fields = ["nome", "telefone", "email", "documento", "placa", "marca",
-              "modelo", "cor"]
+              "modelo", "cor","desconto"]
 
 
 class ClienteDeleteView(LoginRequiredMixin, DeleteView):
