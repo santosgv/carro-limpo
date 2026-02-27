@@ -1,4 +1,5 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import render
 from django.views.generic import TemplateView
 from django.db.models import Sum
 from django.utils.timezone import now
@@ -43,3 +44,7 @@ class EstatisticasView(LoginRequiredMixin, TemplateView):
             context['clientes'] = 0
 
         return context
+
+
+def vendas(request):
+    return render(request, "vendas.html")

@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WashManager - Sistema de Gestão para Lava Jatos</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background: #f8fafc;
+        }
+        
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #0b2b40 0%, #1a4b6d 100%);
+            color: white;
+            padding: 120px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path fill="rgba(255,255,255,0.05)" d="M0 0 L100 100 L0 100 Z"/></svg>');
+            background-size: cover;
+            opacity: 0.1;
+        }
+        
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+        }
+        
+        .hero .highlight {
+            color: #4fd1c5;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .hero .highlight::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: #4fd1c5;
+            border-radius: 2px;
+        }
+        
+        .hero .lead {
+            font-size: 1.5rem;
+            font-weight: 300;
+            opacity: 0.95;
+            margin-bottom: 2rem;
+        }
+        
+        /* Features Section */
+        .features {
+            padding: 100px 0;
+            background: white;
+        }
+        
+        .feature-card {
+            background: white;
+            padding: 40px 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            height: 100%;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #4fd1c5 0%, #319795 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        
+        .feature-icon i {
+            font-size: 40px;
+            color: white;
+        }
+        
+        .feature-card h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #1e293b;
+        }
+        
+        .feature-card p {
+            color: #64748b;
+            line-height: 1.7;
+        }
+        
+        /* Pricing Section */
+        .pricing {
+            padding: 100px 0;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+        
+        .pricing-card {
+            background: white;
+            border-radius: 30px;
+            padding: 50px 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid transparent;
+        }
+        
+        .pricing-card:hover {
+            transform: scale(1.05);
+            border-color: #4fd1c5;
+        }
+        
+        .pricing-card.popular {
+            border: 2px solid #4fd1c5;
+            transform: scale(1.05);
+        }
+        
+        .popular-badge {
+            position: absolute;
+            top: 20px;
+            right: -35px;
+            background: #4fd1c5;
+            color: white;
+            padding: 8px 40px;
+            transform: rotate(45deg);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .pricing-card .price {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin: 20px 0;
+        }
+        
+        .pricing-card .price span {
+            font-size: 1rem;
+            font-weight: 400;
+            color: #64748b;
+        }
+        
+        .pricing-card ul {
+            list-style: none;
+            padding: 0;
+            margin: 30px 0;
+        }
+        
+        .pricing-card ul li {
+            padding: 10px 0;
+            color: #475569;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .pricing-card ul li i {
+            color: #4fd1c5;
+            margin-right: 10px;
+        }
+        
+        .btn-pricing {
+            background: linear-gradient(135deg, #0b2b40 0%, #1a4b6d 100%);
+            color: white;
+            padding: 12px 40px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        
+        .btn-pricing:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            color: white;
+        }
+        
+        /* CTA Section */
+        .cta {
+            padding: 80px 0;
+            background: linear-gradient(135deg, #0b2b40 0%, #1a4b6d 100%);
+            color: white;
+            text-align: center;
+        }
+        
+        .cta h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        
+        .cta p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 40px;
+        }
+        
+        .btn-cta {
+            background: #4fd1c5;
+            color: #0b2b40;
+            padding: 15px 50px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        
+        .btn-cta:hover {
+            background: white;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        /* Footer */
+        .footer {
+            background: #1e293b;
+            color: white;
+            padding: 50px 0 20px;
+        }
+        
+        /* Testimonials */
+        .testimonial-card {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin: 20px 0;
+        }
+        
+        .testimonial-card .stars {
+            color: #fbbf24;
+            margin-bottom: 15px;
+        }
+        
+        .testimonial-card p {
+            font-style: italic;
+            color: #475569;
+            margin-bottom: 20px;
+        }
+        
+        .testimonial-card .author {
+            font-weight: 700;
+            color: #1e293b;
+        }
+        
+        .testimonial-card .position {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero .lead {
+                font-size: 1.2rem;
+            }
+            
+            .pricing-card:hover {
+                transform: none;
+            }
+            
+            .pricing-card.popular {
+                transform: none;
+            }
+        }
+        
+        /* Navbar */
+        .navbar {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .navbar-brand {
+            font-weight: 800;
+            color: #0b2b40;
+            font-size: 1.5rem;
+        }
+        
+        .navbar-brand i {
+            color: #4fd1c5;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg fixed-top">
+    <div class="container">
+        <a class="navbar-brand" href="#">
+            <i class="fas fa-spray-can-sparkles me-2"></i>
+            WashManager
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="#features">Funcionalidades</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#pricing">Preços</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#testimonials">Depoimentos</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'login' %}">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="btn btn-primary ms-3" href="#cta">Começar Agora</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero">
+    <div class="container position-relative">
+        <div class="row align-items-center">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1>
+                    <span class="highlight">Seu lava jato não é</span><br>
+                    uma planilha de Excel.
+                </h1>
+                <p class="lead">
+                    Automatize seu negócio com o sistema completo de gestão para lava jatos. 
+                    Cadastre clientes, agende serviços e controle seu caixa em um só lugar.
+                </p>
+                <div class="mt-5">
+                    <a href="#pricing" class="btn btn-light btn-lg px-5 py-3 me-3">
+                        <i class="fas fa-rocket me-2"></i>Planos e Preços
+                    </a>
+                    <a href="#features" class="btn btn-outline-light btn-lg px-5 py-3">
+                        <i class="fas fa-play me-2"></i>Conheça
+                    </a>
+                </div>
+                <div class="row mt-5">
+                    <div class="col-md-4">
+                        <h3 class="text-white">+500</h3>
+                        <p class="opacity-75">Lava Jatos Atendidos</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h3 class="text-white">+50k</h3>
+                        <p class="opacity-75">Agendamentos/Mês</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h3 class="text-white">98%</h3>
+                        <p class="opacity-75">Satisfação</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="features">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold">Tudo que seu lava jato precisa em um só lugar</h2>
+            <p class="lead text-muted">Sistema completo e intuitivo para gerenciar seu negócio</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Cadastro de Clientes</h3>
+                    <p>Mantenha um histórico completo dos seus clientes: veículos, preferências, histórico de serviços e muito mais. Facilite o reatendimento e fidelize.</p>
+                    <ul class="list-unstyled mt-3">
+                        <li><i class="fas fa-check text-success me-2"></i> Histórico completo</li>
+                        <li><i class="fas fa-check text-success me-2"></i> Veículos por cliente</li>
+                        <li><i class="fas fa-check text-success me-2"></i> Descontos personalizados</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <h3>Agendamento de Serviços</h3>
+                    <p>Organize sua agenda de forma visual e intuitiva. Evite conflitos de horário e maximize a produtividade da sua equipe.</p>
+                    <ul class="list-unstyled mt-3">
+                        <li><i class="fas fa-check text-success me-2"></i> Calendário visual</li>
+                        <li><i class="fas fa-check text-success me-2"></i> Conflitos automáticos</li>
+                        <li><i class="fas fa-check text-success me-2"></i> Lembretes automáticos</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-cash-register"></i>
+                    </div>
+                    <h3>Controle de Caixa</h3>
+                    <p>Tenha total controle financeiro do seu negócio. Abertura e fechamento de caixa, fluxo de caixa diário, relatórios completos.</p>
+                    <ul class="list-unstyled mt-3">
+                        <li><i class="fas fa-check text-success me-2"></i> Abertura/Fechamento</li>
+                        <li><i class="fas fa-check text-success me-2"></i> Fluxo de caixa</li>
+                        <li><i class="fas fa-check text-success me-2"></i> Relatórios gerenciais</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mais 3 features -->
+        <div class="row g-4 mt-4">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-qrcode"></i>
+                    </div>
+                    <h3>Pagamento por PIX</h3>
+                    <p>Gere QR Codes para pagamento via PIX diretamente na fatura. Facilite a vida do seu cliente e agilize o recebimento.</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Relatórios Gerenciais</h3>
+                    <p>Visualize o desempenho do seu negócio com relatórios completos de vendas, serviços mais realizados e métricas importantes.</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>100% Responsivo</h3>
+                    <p>Acesse de qualquer lugar, em qualquer dispositivo. Interface adaptada para celular, tablet e computador.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Pricing Section -->
+<section id="pricing" class="pricing">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold">Planos que cabem no seu bolso</h2>
+            <p class="lead text-muted">Escolha o plano ideal para seu lava jato</p>
+        </div>
+        
+        <div class="row g-4 align-items-center">
+            <!-- Plano Básico -->
+            <div class="col-md-4">
+                <div class="pricing-card text-center">
+                    <h3 class="fw-bold">Básico</h3>
+                    <div class="price">
+                        R$ 97 <span>/mês</span>
+                    </div>
+                    <ul class="text-start">
+                        <li><i class="fas fa-check"></i> Até 200 clientes</li>
+                        <li><i class="fas fa-check"></i> Agendamento básico</li>
+                        <li><i class="fas fa-check"></i> Controle de caixa</li>
+                        <li><i class="fas fa-check"></i> Relatórios simples</li>
+                        <li><i class="fas fa-check"></i> Suporte por email</li>
+                        <li class="text-muted"><i class="fas fa-times"></i> PIX integrado</li>
+                        <li class="text-muted"><i class="fas fa-times"></i> Relatórios avançados</li>
+                    </ul>
+                    <a href="#" class="btn-pricing">Contratar</a>
+                </div>
+            </div>
+            
+            <!-- Plano Profissional -->
+            <div class="col-md-4">
+                <div class="pricing-card popular text-center">
+                    <div class="popular-badge">MAIS POPULAR</div>
+                    <h3 class="fw-bold">Profissional</h3>
+                    <div class="price">
+                        R$ 197 <span>/mês</span>
+                    </div>
+                    <ul class="text-start">
+                        <li><i class="fas fa-check"></i> Clientes ilimitados</li>
+                        <li><i class="fas fa-check"></i> Agendamento avançado</li>
+                        <li><i class="fas fa-check"></i> Controle de caixa completo</li>
+                        <li><i class="fas fa-check"></i> Relatórios avançados</li>
+                        <li><i class="fas fa-check"></i> PIX integrado</li>
+                        <li><i class="fas fa-check"></i> Suporte prioritário</li>
+                        <li><i class="fas fa-check"></i> Múltiplas unidades</li>
+                    </ul>
+                    <a href="#" class="btn-pricing">Contratar</a>
+                </div>
+            </div>
+            
+            <!-- Plano Avançado -->
+            <div class="col-md-4">
+                <div class="pricing-card text-center">
+                    <h3 class="fw-bold">Avançado</h3>
+                    <div class="price">
+                        R$ 297 <span>/mês</span>
+                    </div>
+                    <ul class="text-start">
+                        <li><i class="fas fa-check"></i> Tudo do Profissional</li>
+                        <li><i class="fas fa-check"></i> API de integração</li>
+                        <li><i class="fas fa-check"></i> Relatórios customizados</li>
+                        <li><i class="fas fa-check"></i> Treinamento online</li>
+                        <li><i class="fas fa-check"></i> Gerente de contas</li>
+                        <li><i class="fas fa-check"></i> SLA garantido</li>
+                        <li><i class="fas fa-check"></i> Backup diferenciado</li>
+                    </ul>
+                    <a href="#" class="btn-pricing">Contratar</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Informação adicional -->
+        <div class="text-center mt-5">
+            <p class="text-muted">
+                <i class="fas fa-shield-alt me-2"></i>
+                Todos os planos incluem 7 dias de teste grátis. Sem fidelidade.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials -->
+<section id="testimonials" class="features bg-white">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold">O que dizem nossos clientes</h2>
+            <p class="lead text-muted">Mais de 500 lava jatos confiam no WashManager</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="testimonial-card">
+                    <div class="stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p>"Antes usava Excel e perdia vendas por conflito de horário. Com o WashManager, organizei minha agenda e aumentei em 40% minha produtividade."</p>
+                    <div class="author">Carlos Silva</div>
+                    <div class="position">Lava Jato do Carlos</div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="testimonial-card">
+                    <div class="stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p>"O controle de caixa é fantástico! Agora sei exatamente quanto entrou e saiu no dia. A diferença do caixa físico nunca mais foi um problema."</p>
+                    <div class="author">Ana Rodrigues</div>
+                    <div class="position">Lava Jato Premium</div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="testimonial-card">
+                    <div class="stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p>"O sistema é muito intuitivo, meus funcionários aprenderam em um dia. O suporte é rápido e eficiente. Recomendo!"</p>
+                    <div class="author">Marcos Oliveira</div>
+                    <div class="position">Lava Jato Express</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section id="cta" class="cta">
+    <div class="container">
+        <h2>Pronto para transformar seu lava jato?</h2>
+        <p>Comece hoje mesmo com 7 dias de teste grátis. Sem compromisso, sem fidelidade.</p>
+        <a href="#" class="btn-cta">
+            <i class="fas fa-rocket me-2"></i>Testar Grátis por 7 Dias
+        </a>
+        <p class="mt-3 small opacity-75">Não exige cartão de crédito</p>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <h5><i class="fas fa-spray-can-sparkles me-2"></i>WashManager</h5>
+                <p class="small opacity-75">O sistema completo para gestão de lava jatos. Simples, intuitivo e eficiente.</p>
+            </div>
+            <div class="col-md-2 mb-4">
+                <h6>Produto</h6>
+                <ul class="list-unstyled small">
+                    <li><a href="#" class="text-white-50 text-decoration-none">Funcionalidades</a></li>
+                    <li><a href="#" class="text-white-50 text-decoration-none">Preços</a></li>
+                    <li><a href="#" class="text-white-50 text-decoration-none">FAQ</a></li>
+                </ul>
+            </div>
+            <div class="col-md-2 mb-4">
+                <h6>Legal</h6>
+                <ul class="list-unstyled small">
+                    <li><a href="#" class="text-white-50 text-decoration-none">Termos</a></li>
+                    <li><a href="#" class="text-white-50 text-decoration-none">Privacidade</a></li>
+                </ul>
+            </div>
+            <div class="col-md-4 mb-4">
+                <h6>Contato</h6>
+                <ul class="list-unstyled small">
+                    <li><i class="fas fa-envelope me-2"></i> contato@washmanager.com.br</li>
+                    <li><i class="fas fa-phone me-2"></i> (11) 99999-9999</li>
+                    <li class="mt-3">
+                        <a href="#" class="text-white me-3"><i class="fab fa-instagram fa-lg"></i></a>
+                        <a href="#" class="text-white me-3"><i class="fab fa-facebook fa-lg"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-whatsapp fa-lg"></i></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <hr class="opacity-25">
+        <div class="text-center small opacity-50">
+            <p>&copy; 2026 WashManager. Todos os direitos reservados.</p>
+        </div>
+    </div>
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Smooth Scroll -->
+<script>
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
