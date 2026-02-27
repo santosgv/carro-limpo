@@ -5,6 +5,7 @@
   {% include 'includes/cssdefault.html' %}
   <link rel="stylesheet" href="{% static "css/dataRangetables.css" %}">
   <link rel="stylesheet" href="{% static "css/caixa.css" %}">
+  
 {% endblock %}
 {% block page_js %}
   {% include 'includes/jsdefault.html' %}
@@ -15,6 +16,8 @@
   <!-- tabela -->
   <script type="text/javascript" src="{% static "js/tabela-listar-data.js" %}"></script>
   <script type="text/javascript" src="{% static "js/data_local.js" %}"></script>
+
+
 {% endblock %}
 {% block body %}
 <body id="body-pd" class="body-pd2">
@@ -152,6 +155,12 @@
                     <div class="e-navlist e-navlist--active-bg">
                       <button class="fechar__caixa btn btn-secondary" data-toggle="tooltip" title="Fechar o Caixa" data-bs-toggle="modal" data-bs-target="#Fechar-Caixa-Modal" data-bs-whatever="@mdo" {% if not caixa %} disabled {% endif %}><i class="icone fas fa-cash-register"></i> Fechar o Caixa</button>
                     </div>
+                  </div>
+                  <div class="border-btn separar w-100 p-2 mb-3">
+                    <button class="btn btn-outline-success" onclick="imprimirCaixa()">
+                    Imprimir / Salvar PDF
+                  </button>
+
                   </div>
                 </div>
               </div>
@@ -332,12 +341,345 @@
   <!-- Javascript do fluxo de caixa -->
   <script src="{% static "js/moment.js" %}"></script>
   <script src="{% static "js/tabela-data.js" %}"></script>
+  
 
   <!-- Javascript do projeto caixa -->
   <script src="{% static "js/caixa/chart.js" %}"></script>
   <script src="{% static "js/caixa/app.js" %}"></script>
 
-
+<script>
+function imprimirCaixa() {
+    // Pega os valores atuais do caixa
+    var saldoAtual = document.querySelector('.budget__value') ? document.querySelector('.budget__value').innerText : 'R$ 0';
+    var receitaAtual = document.querySelector('.budget__income--value') ? document.querySelector('.budget__income--value').innerText : 'R$ 0';
+    var gastoAtual = document.querySelector('.budget__expenses--value') ? document.querySelector('.budget__expenses--value').innerText : 'R$ 0';
+    var percentualAtual = document.querySelector('.budget__expenses--percentage') ? document.querySelector('.budget__expenses--percentage').innerText : '0%';
+    
+    // Pega as listas de receitas e gastos do HTML atual
+    var receitas = [];
+    var gastos = [];
+    
+    // Tenta pegar as transações dos elementos da página
+    document.querySelectorAll('.income__list .item, .income__list .transaction-item').forEach(function(item) {
+        var descricao = item.querySelector('.item__description') ? item.querySelector('.item__description').innerText : '';
+        var valor = item.querySelector('.item__value') ? item.querySelector('.item__value').innerText : '';
+        if (descricao && valor) {
+            receitas.push({ descricao: descricao, valor: valor });
+        }
+    });
+    
+    document.querySelectorAll('.expenses__list .item, .expenses__list .transaction-item').forEach(function(item) {
+        var descricao = item.querySelector('.item__description') ? item.querySelector('.item__description').innerText : '';
+        var valor = item.querySelector('.item__value') ? item.querySelector('.item__value').innerText : '';
+        if (descricao && valor) {
+            gastos.push({ descricao: descricao, valor: valor });
+        }
+    });
+    
+    // Se não encontrou, tenta pegar dos elementos ocultos
+    if (receitas.length === 0 && gastos.length === 0) {
+        document.querySelectorAll('#dados-transacoes .transacao-item').forEach(function(item) {
+            var tipo = item.getAttribute('data-tipo');
+            var descricao = item.getAttribute('data-descricao');
+            var valor = 'R$ ' + parseFloat(item.getAttribute('data-valor')).toFixed(2).replace('.', ',');
+            
+            if (tipo === 'inc' || tipo === 'entrada') {
+                receitas.push({ descricao: descricao, valor: valor });
+            } else {
+                gastos.push({ descricao: descricao, valor: valor });
+            }
+        });
+    }
+    
+    // Pega a data atual
+    var dataAtual = new Date().toLocaleDateString('pt-BR');
+    var horaAtual = new Date().toLocaleTimeString('pt-BR');
+    
+    // Cria as linhas da tabela de receitas
+    var linhasReceitas = '';
+    if (receitas.length > 0) {
+        receitas.forEach(function(r) {
+            linhasReceitas += `
+            <tr>
+                <td>${r.descricao}</td>
+                <td class="valor-positivo">${r.valor}</td>
+            </tr>
+            `;
+        });
+    } else {
+        linhasReceitas = '<tr><td colspan="2" style="text-align: center;">Nenhuma receita registrada</td></tr>';
+    }
+    
+    // Cria as linhas da tabela de gastos
+    var linhasGastos = '';
+    if (gastos.length > 0) {
+        gastos.forEach(function(g) {
+            linhasGastos += `
+            <tr>
+                <td>${g.descricao}</td>
+                <td class="valor-negativo">${g.valor}</td>
+            </tr>
+            `;
+        });
+    } else {
+        linhasGastos = '<tr><td colspan="2" style="text-align: center;">Nenhum gasto registrado</td></tr>';
+    }
+    
+    // Cria o HTML para impressão
+    var htmlImpressao = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Carro Limpo - Relatório do Caixa</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 30px;
+                background: white;
+                color: #333;
+            }
+            .header {
+                text-align: center;
+                margin-bottom: 30px;
+                padding-bottom: 20px;
+                border-bottom: 2px solid #0d6efd;
+            }
+            .header h1 {
+                color: #0d6efd;
+                margin: 0;
+                font-size: 28px;
+            }
+            .header p {
+                color: #666;
+                margin: 5px 0 0;
+            }
+            .resumo {
+                display: grid;
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 20px;
+                margin-bottom: 30px;
+            }
+            .card {
+                background: #f8f9fa;
+                border-radius: 8px;
+                padding: 20px;
+                text-align: center;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .card.saldo {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+            }
+            .card h3 {
+                margin: 0 0 10px;
+                font-size: 14px;
+                text-transform: uppercase;
+                opacity: 0.9;
+            }
+            .card .valor {
+                font-size: 28px;
+                font-weight: bold;
+                margin: 0;
+            }
+            .tabelas {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+                margin-bottom: 30px;
+            }
+            .tabela-container {
+                background: white;
+                border: 1px solid #dee2e6;
+                border-radius: 8px;
+                overflow: hidden;
+            }
+            .tabela-container h2 {
+                margin: 0;
+                padding: 15px;
+                background: #f8f9fa;
+                border-bottom: 1px solid #dee2e6;
+                font-size: 16px;
+                text-transform: uppercase;
+            }
+            .tabela-container.receita h2 {
+                color: #28a745;
+                border-left: 4px solid #28a745;
+            }
+            .tabela-container.gasto h2 {
+                color: #dc3545;
+                border-left: 4px solid #dc3545;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            th {
+                background: #f8f9fa;
+                padding: 12px;
+                text-align: left;
+                font-size: 13px;
+                font-weight: 600;
+                color: #495057;
+                border-bottom: 2px solid #dee2e6;
+            }
+            td {
+                padding: 10px 12px;
+                border-bottom: 1px solid #dee2e6;
+            }
+            .valor-positivo {
+                color: #28a745;
+                font-weight: 600;
+                text-align: right;
+            }
+            .valor-negativo {
+                color: #dc3545;
+                font-weight: 600;
+                text-align: right;
+            }
+            .total-section {
+                margin-top: 20px;
+                padding: 20px;
+                background: #f8f9fa;
+                border-radius: 8px;
+                border: 1px solid #dee2e6;
+            }
+            .total-row {
+                display: flex;
+                justify-content: space-between;
+                padding: 10px 0;
+                border-bottom: 1px solid #dee2e6;
+            }
+            .total-row:last-child {
+                border-bottom: none;
+                font-weight: bold;
+                font-size: 18px;
+            }
+            .footer {
+                margin-top: 40px;
+                text-align: center;
+                color: #6c757d;
+                font-size: 12px;
+                border-top: 1px solid #dee2e6;
+                padding-top: 20px;
+            }
+            .info-extra {
+                margin-top: 20px;
+                color: #6c757d;
+                font-size: 12px;
+                text-align: right;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <h1>🚗 Carro Limpo</h1>
+            <p>Relatório Detalhado do Caixa</p>
+            <p>${dataAtual} às ${horaAtual}</p>
+        </div>
+        
+        <div class="resumo">
+            <div class="card saldo">
+                <h3>Saldo Total</h3>
+                <div class="valor">${saldoAtual}</div>
+            </div>
+            <div class="card">
+                <h3>Total Receitas</h3>
+                <div class="valor" style="color: #28a745;">${receitaAtual}</div>
+            </div>
+            <div class="card">
+                <h3>Total Gastos</h3>
+                <div class="valor" style="color: #dc3545;">${gastoAtual}</div>
+                <div style="font-size: 12px; margin-top: 5px;">${percentualAtual} do saldo</div>
+            </div>
+        </div>
+        
+        <div class="tabelas">
+            <div class="tabela-container receita">
+                <h2>📈 Receitas do Dia</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Descrição</th>
+                            <th>Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${linhasReceitas}
+                    </tbody>
+                </table>
+                <div style="padding: 10px; background: #f8f9fa; border-top: 2px solid #28a745;">
+                    <div style="display: flex; justify-content: space-between; font-weight: bold;">
+                        <span>Total Receitas:</span>
+                        <span style="color: #28a745;">${receitaAtual}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tabela-container gasto">
+                <h2>📉 Gastos do Dia</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Descrição</th>
+                            <th>Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${linhasGastos}
+                    </tbody>
+                </table>
+                <div style="padding: 10px; background: #f8f9fa; border-top: 2px solid #dc3545;">
+                    <div style="display: flex; justify-content: space-between; font-weight: bold;">
+                        <span>Total Gastos:</span>
+                        <span style="color: #dc3545;">${gastoAtual}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="total-section">
+            <h3 style="margin-top: 0;">📊 Resumo Final</h3>
+            <div class="total-row">
+                <span>Total de Receitas:</span>
+                <span style="color: #28a745;">${receitaAtual}</span>
+            </div>
+            <div class="total-row">
+                <span>Total de Gastos:</span>
+                <span style="color: #dc3545;">${gastoAtual}</span>
+            </div>
+            <div class="total-row">
+                <span>Saldo Final:</span>
+                <span style="color: #0d6efd;">${saldoAtual}</span>
+            </div>
+        </div>
+        
+        <div class="info-extra">
+            <p>Documento gerado em ${dataAtual} às ${horaAtual}</p>
+            <p>WashManager - Sistema de Gestão para Lava Jatos</p>
+        </div>
+        
+        <div class="footer">
+            <p>Este é um documento oficial gerado pelo sistema</p>
+        </div>
+    </body>
+    </html>
+    `;
+    
+    // Abre uma nova janela e escreve o HTML
+    var janelaImpressao = window.open('', '_blank', 'width=1000,height=700');
+    janelaImpressao.document.write(htmlImpressao);
+    janelaImpressao.document.close();
+    
+    // Aguarda o carregamento e imprime
+    setTimeout(function() {
+        janelaImpressao.print();
+        janelaImpressao.onafterprint = function() {
+            janelaImpressao.close();
+        };
+    }, 500);
+}
+</script>
 </body>
 {% include "includes/footer.html" %}
 </div>
