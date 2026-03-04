@@ -7,10 +7,12 @@
 {% endblock %}
 {% block page_js %}
   {% include 'includes/jsdefault.html' %}
+  
   <!-- ajax -->
   <script type="text/javascript" src="{% static "js/ajax.js" %}"></script>
   <!-- JavaScript do projeto servicos -->
   <script src="{% static "js/crud_servico.js" %}"></script>
+<script src="https://unpkg.com/imask"></script>
 {% endblock %}
 
 {% block body %}
